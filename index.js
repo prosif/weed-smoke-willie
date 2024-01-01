@@ -147,7 +147,7 @@ class WeedSmokeWillie extends Game {
             coordinates2d: ShapeUtils.rectangle(42.5, 0, 45, 45)
         });
 
-        this.level = 3;
+        this.level = 1;
 
         this.cash = 100;
         this.total = 0;
