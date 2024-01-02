@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 
-const { Asset, Game, GameNode, Colors, Physics, Shapes, ShapeUtils, GeometryUtils } = require('squish-1005');
+const { Asset, Game, GameNode, Colors, Physics, Shapes, ShapeUtils, GeometryUtils } = require(process.env.SQUISH_PATH);
 const COLORS = Colors.COLORS;
 
 const levelThresholds = {
@@ -585,7 +585,8 @@ class WeedSmokeWillie extends Game {
 
        const newLoad = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(willieCenterX, willieBottomY, 5, 5)
+            coordinates2d: ShapeUtils.rectangle(willieCenterX, willieBottomY, 5, 5),
+            fill: COLORS.GRAY
         });
 
         const imageKey = `load_${this.level}`;
