@@ -26,10 +26,10 @@ class WeedSmokeWillie extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '1005',
+            squishVersion: '1006',
             author: 'Joseph Garcia',
             thumbnail: 'f70e1e9e2b5ab072764949a6390a8b96',
-            tickRate: 120,
+            tickRate: 60,
             assets: {
                 'background': new Asset({
                     id: '8c1043367014492950188a4792c91e37',
@@ -474,7 +474,6 @@ class WeedSmokeWillie extends Game {
                 this.willieLayer.removeChild(cur.node.id);
                 const toFree = this.loads[cur.node.id];
                 delete this.loads[cur.node.id];
-                toFree.node.free();
                 if (!collided) {
                     this.multiplier = 1;
                     this.renderMultiplier();
@@ -491,8 +490,6 @@ class WeedSmokeWillie extends Game {
                     const collidingFish = fishCollisions[i];
                     delete this.fish[collidingFish.node.id];
                     this.fishLayer.removeChild(collidingFish.node.id);
-                    collidingFish.node.children[0].free();
-                    collidingFish.node.free();
                 }
 
             } else {
@@ -525,9 +522,6 @@ class WeedSmokeWillie extends Game {
                 this.fishLayer.removeChild(cur.node.id);
                 const toFree = this.fish[cur.node.id];
                 delete this.fish[cur.node.id];
-                // free image
-                toFree.node.node.children[0].node.free();
-                toFree.node.free();
             } else {
                 const coords = cur.node.node.coordinates2d;
 
@@ -549,7 +543,6 @@ class WeedSmokeWillie extends Game {
                 cur.parent.removeChild(cur.node.id);
                 const toFree = this.expiringNodes[cur.node.id];
                 delete this.expiringNodes[cur.node.id];
-                toFree.node.free();
             }
         }
 
@@ -560,6 +553,7 @@ class WeedSmokeWillie extends Game {
 
         this.renderWillie();
         this.renderFish();
+        this.base.node.onStateChange();
     }
 
     dropLoad() {
