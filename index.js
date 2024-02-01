@@ -686,39 +686,6 @@ class WeedSmokeWillie extends Game {
         return min + (max -  min + 1) * crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32 | 0;
     }
 
-    blahHandleGamepadInput(playerId, gamepadInput) {
-        const stick1X = gamepadInput.input.sticks.STICK_1_X.value;
-        const stick2X = gamepadInput.input.sticks.STICK_2_X.value;
-
-        const stick1Y = gamepadInput.input.sticks.STICK_1_Y.value;
-        const stick2Y = gamepadInput.input.sticks.STICK_2_Y.value;
-
-
-        if (stick1X < 0) {
-            this.movePlayer(this.mover1, 'left', .1);
-        } else if (stick1X > 0) {
-            this.movePlayer(this.mover1, 'right', .1);
-        }
-
-        if (stick1Y < 0) {
-            this.movePlayer(this.mover1, 'up', .1);
-        } else if (stick1Y > 0) {
-            this.movePlayer(this.mover1, 'down', .1);
-        }
-
-        if (stick2X < 0) {
-            this.movePlayer(this.mover2, 'left', .1);
-        } else if (stick2X > 0) {
-            this.movePlayer(this.mover2, 'right', .1);
-        }
-
-        if (stick2Y < 0) {
-            this.movePlayer(this.mover2, 'up', .1);
-        } else if (stick2Y > 0) {
-            this.movePlayer(this.mover2, 'down', .1);
-        }
-    }
-
     moveNode(node, dir, dist = .5) {
         const coords = node.node.coordinates2d;
 
@@ -769,6 +736,29 @@ class WeedSmokeWillie extends Game {
         const newCoords = ShapeUtils.rectangle(newX, newY, nodeWidth, nodeHeight);
         node.node.coordinates2d = newCoords;
         //}
+    }
+
+    handleGamepadInput(playerId, gamepadInput) {
+        if (gamepadInput.input.buttons.FACE_1.pressed) {
+            this.keysDown[' '] = true;
+        } else {
+            this.keysDown[' '] = false;
+        }
+
+        if (gamepadInput.input.sticks.STICK_1_X.value < 0) {
+            this.keysDown['a'] = true;
+        } else {
+            this.keysDown['a'] = false;
+        }
+
+
+        if (gamepadInput.input.sticks.STICK_1_X.value > 0) {
+            this.keysDown['d'] = true;
+        } else {
+            this.keysDown['d'] = false;
+        }
+
+
     }
 
     handleKeyDown(player, key) {
