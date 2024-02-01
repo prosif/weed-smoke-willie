@@ -422,7 +422,7 @@ class WeedSmokeWillie extends Game {
             textInfo: {
                 x: fishCenterX,
                 y: fishCenterY + 5,
-                text: `+$${fishValue * this.multiplier} x ${this.multiplier}`,
+                text: `+$${fishValue} x ${this.multiplier}`,
                 align: 'center',
                 font: 'heavy-amateur',
                 size: 2,
