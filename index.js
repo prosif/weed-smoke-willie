@@ -22,6 +22,20 @@ const fishValues = {
     3: 2000
 };
 
+const UNALIVE_SEQUENCE = [
+    'DIRECTION_UP', 
+    'DIRECTION_UP', 
+    'DIRECTION_DOWN', 
+    'DIRECTION_DOWN', 
+    'DIRECTION_LEFT', 
+    'DIRECTION_RIGHT',
+    'DIRECTION_LEFT', 
+    'DIRECTION_RIGHT', 
+    'FACE_2', 
+    'FACE_1', 
+    'START'
+];
+
 class WeedSmokeWillie extends Game {
     static metadata() {
         return {
@@ -60,7 +74,7 @@ class WeedSmokeWillie extends Game {
                     type: 'image'
                 }),
                 'load_1': new Asset({
-                    id: 'd2a826fa84a6b9a7b7a4244cc13a7dbf',
+                    id: '56d40d4f11e5e8c56816b23a7545675f',
                     type: 'image'
                 }),
                 'load_2': new Asset({
@@ -94,6 +108,10 @@ class WeedSmokeWillie extends Game {
                 'fish_3_right': new Asset({
                     id: '0242ca9972961b6b68707abd635a0a53',
                     type: 'image'
+                }),
+                'heavy-amateur': new Asset({
+                    'type': 'font',
+                    'id': '9f11fac62df9c1559f6bd32de1382c20'
                 })  
             }
         };
@@ -138,8 +156,8 @@ class WeedSmokeWillie extends Game {
 
         this.scoreLayer = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
-            coordinates2d: ShapeUtils.rectangle(80, 0, 20, 20),
-            fill: COLORS.HG_BLACK
+            coordinates2d: ShapeUtils.rectangle(85, 0, 15, 15),
+            // fill: COLORS.HG_BLACK
         });
 
         this.willie = new GameNode.Shape({
@@ -166,6 +184,10 @@ class WeedSmokeWillie extends Game {
 
         this.willieLayer.addChild(this.willie);
         this.base.addChildren(this.fishLayer, this.willieLayer, this.scoreLayer);
+
+        this.unaliveIndex = 0;
+
+        this.cheatCodeResets = {};
     }
 
     handleKeyUp(player, key) {
@@ -260,11 +282,12 @@ class WeedSmokeWillie extends Game {
         } else {
             this.cashNode = new GameNode.Text({
                 textInfo: {
-                    x: 85,
+                    x: 85, 
                     y: 1.5,
                     text: `$${this.cash}`,
-                    color: COLORS.GREEN,
+                    color: [0, 144, 0, 255],//COLORS.GREEN,//[126, 255, 0, 255],
                     align: 'left',
+                    font: 'heavy-amateur',
                     size: textSize(this.cash)
                 }
             });
@@ -276,15 +299,15 @@ class WeedSmokeWillie extends Game {
     renderMultiplier() {
         const textSize = (val) => {
             if (val < 5) {
-                return 1;
+                return 1.2;
             } 
             if (val < 15) {
-                return 2;
+                return 2.4;
             }
             if (val < 25) {
-                return 3;
+                return 3.6;
             }
-            return 4;
+            return 4.8;
         };
 
         if (this.multiplierNode) {
@@ -296,10 +319,11 @@ class WeedSmokeWillie extends Game {
             this.multiplierNode = new GameNode.Text({
                 textInfo: {
                     x: 92.5,
-                    y: 12.5,
+                    y: 13.5,
                     text: `x${this.multiplier}`,
                     color: COLORS.RED,
                     align: 'center',
+                    font: 'heavy-amateur',
                     size: textSize(this.multiplier)
                 }
             });
@@ -321,6 +345,7 @@ class WeedSmokeWillie extends Game {
                     text: `Total: $${this.total}`,
                     color: COLORS.BLACK,
                     align: 'left',
+                    font: 'heavy-amateur',
                     size: 1.5
                 }
             });
@@ -397,10 +422,11 @@ class WeedSmokeWillie extends Game {
             textInfo: {
                 x: fishCenterX,
                 y: fishCenterY + 5,
-                text: `+$${fishValue * this.multiplier}`,
+                text: `+$${fishValue * this.multiplier} x ${this.multiplier}`,
                 align: 'center',
+                font: 'heavy-amateur',
                 size: 2,
-                color: COLORS.GREEN
+                color: COLORS.BLACK
             }
         });
 
@@ -423,6 +449,7 @@ class WeedSmokeWillie extends Game {
                 text: `Weedsmoke Willie has perished`,
                 align: 'center',
                 size: 5,
+                font: 'heavy-amateur',
                 color: COLORS.BLACK
             }
         });
@@ -466,8 +493,8 @@ class WeedSmokeWillie extends Game {
             const collided = fishCollisions.length > 0;
 
             if (collided) {
-                this.multiplier += 1;
                 this.dealDrugs(fishCollisions[0]);
+                this.multiplier += 1;
             }
 
             if (collided || cur.pathIndex >= cur.path.length) {
@@ -572,6 +599,7 @@ class WeedSmokeWillie extends Game {
                 y: willieBottomY,
                 text: `-$${cost}`,
                 align: 'center',
+                font: 'heavy-amateur',
                 size: 2,
                 color: COLORS.RED
             }
@@ -580,10 +608,10 @@ class WeedSmokeWillie extends Game {
        const newLoad = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(willieCenterX, willieBottomY, 5, 5),
-            fill: COLORS.GRAY
+            // fill: COLORS.GRAY
         });
 
-        const imageKey = `load_${this.level}`;
+        const imageKey = `load_1`;//${this.level}`;
 
         const loadImage = new GameNode.Asset({
             coordinates2d: ShapeUtils.rectangle(willieCenterX, willieBottomY, 5, 5),
@@ -708,7 +736,7 @@ class WeedSmokeWillie extends Game {
             if (newY + nodeWidth + dist <= 100) {
                 newY += dist;
             } else {
-                newY = 100 - nodeHeight;//player.size.y;
+                newY = 100 - nodeHeight;
             }
         } 
 
@@ -724,21 +752,46 @@ class WeedSmokeWillie extends Game {
             if (newX + nodeWidth + dist <= 100) {
                 newX += dist;
             } else {
-                newX = 100 - nodeWidth;//player.size.x;
+                newX = 100 - nodeWidth;
             }
         } 
 
-        //const wouldBeCollisions = GeometryUtils.checkCollisions(this.base, {node: {coordinates2d: ShapeUtils.rectangle(newX, newY, 10, 17)}}, (node) => {
-        //    return node.node.id !== this.base.node.id && node.node.id !== player.node.id;
-        //});
-
-        //if (wouldBeCollisions.length == 0) {
         const newCoords = ShapeUtils.rectangle(newX, newY, nodeWidth, nodeHeight);
         node.node.coordinates2d = newCoords;
-        //}
     }
 
     handleGamepadInput(playerId, gamepadInput) {
+        if (this.dead) {
+            return;
+        }
+
+        const unpressedButtons = Object.keys(gamepadInput.input.buttons).filter(b => !gamepadInput.input.buttons[b].pressed);
+
+        if (this.unaliveIndex > 0) {
+            const pressedButtons = Object.keys(gamepadInput.input.buttons).filter(b => gamepadInput.input.buttons[b].pressed);
+            pressedButtons.forEach(b => {
+                if (UNALIVE_SEQUENCE[this.unaliveIndex] !== b) {
+                    console.log('need to reset cheat code');
+                    this.unaliveIndex = 0;
+                }
+            })
+        }
+
+        unpressedButtons.forEach(b => {
+            if (this.cheatCodeResets[b]) {
+                if (UNALIVE_SEQUENCE[this.unaliveIndex] === b) {
+                    this.cheatCodeResets[b] = false;
+                    this.unaliveIndex++;
+                }
+            }
+        });
+
+        if (gamepadInput.input.buttons[UNALIVE_SEQUENCE[this.unaliveIndex]].pressed) {
+            this.cheatCodeResets[UNALIVE_SEQUENCE[this.unaliveIndex]] = true;
+            if (this.unaliveIndex + 2 > UNALIVE_SEQUENCE.length) {
+                this.kill();
+            }
+        }
         if (gamepadInput.input.buttons.FACE_1.pressed) {
             this.keysDown[' '] = true;
         } else {
