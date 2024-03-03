@@ -45,16 +45,20 @@ class WeedSmokeWillie extends Game {
             thumbnail: 'f70e1e9e2b5ab072764949a6390a8b96',
             tickRate: 60,
             assets: {
-                'background': new Asset({
+                'background_1': new Asset({
                     id: '8c1043367014492950188a4792c91e37',
                     type: 'image'
                 }),
+                'background_2': new Asset({
+                    id: 'd146bd1a317de48cd807db1f98a48593',
+                    type: 'image'
+                }), 
                 'boat_1_left': new Asset({
                     id: 'da3bb83675a47712d00202261840dda4',
                     type: 'image'
                 }),
                 'boat_1_right': new Asset({
-                    id: 'b664212eece66934e76f25aaf2841314',
+                    id: '26ff7ab8054b285308045b4ee1268102',
                     type: 'image'
                 }),
                 'boat_2_left': new Asset({
@@ -62,7 +66,7 @@ class WeedSmokeWillie extends Game {
                     type: 'image'
                 }),
                 'boat_2_right': new Asset({
-                    id: '743beb7e892eb4741b61a7d2d1f25d0f',
+                    id: '3d0228f5e822ff800bd2075a88a65c6d',
                     type: 'image'
                 }),
                 'boat_3_left': new Asset({
@@ -70,8 +74,12 @@ class WeedSmokeWillie extends Game {
                     type: 'image'
                 }),
                 'boat_3_right': new Asset({
-                    id: '56cc2f4252fb70a2efaacefc2ae23527',
+                    id: '6fc3197eef1434fc49c456296758482c',
                     type: 'image'
+                }),
+                'song': new Asset({
+                    id: '7c1499f198919967ee81389f76d03461',
+                    type: 'audio'
                 }),
                 'load_1': new Asset({
                     id: '56d40d4f11e5e8c56816b23a7545675f',
@@ -89,8 +97,32 @@ class WeedSmokeWillie extends Game {
                     id: '1085ec5013bf3d6b90ab901b99b85832',
                     type: 'image'
                 }),
+                'fish_1_left_dead': new Asset({
+                    id: '8831710a5d831cea7f3bc8636b6f6458',
+                    type: 'image'
+                }),
+                'fish_1_right_dead': new Asset({
+                    id: '9327398422eff852b13515af4808dc31',
+                    type: 'image'
+                }), 
                 'fish_2_left': new Asset({
                     id: '11275cd9ec3bc49675f00fd564eafdba',
+                    type: 'image'
+                }),
+                'fish_2_left_dead': new Asset({
+                    id: '669db76574dc7c14b14bb2c89e647077',
+                    type: 'image'
+                }),
+                'fish_2_right_dead': new Asset({
+                    id: 'b0bfd74527ab86224f8d5d8a52eab14a',
+                    type: 'image'
+                }),
+                'fish_3_left_dead': new Asset({
+                    id: 'b05bb82adbece188b431650ef233148f',
+                    type: 'image'
+                }),
+                'fish_3_right_dead': new Asset({
+                    id: '63d00bae97df53ac0954c55aa09b7ab5',
                     type: 'image'
                 }),
                 'fish_3_left': new Asset({
@@ -126,10 +158,23 @@ class WeedSmokeWillie extends Game {
             fill: COLORS.WHITE
         });
 
+        this.songNode = new GameNode.Asset({
+            coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
+            assetInfo: {
+                'song': {
+                    'pos': Object.assign({}, { x: 0, y: 0 }),
+                    'size': Object.assign({}, { x: 0, y: 0 }),
+                    'startTime': 0
+                }
+            }
+        });
+
+        this.base.addChild(this.songNode);
+
         this.baseImage = new GameNode.Asset({
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
             assetInfo: {
-                'background': {
+                'background_1': {
                     pos: {
                         x: 0, 
                         y: 0
@@ -243,7 +288,7 @@ class WeedSmokeWillie extends Game {
             this.willieImage = new GameNode.Asset({
                 coordinates2d: willieCoords,
                 assetInfo: {
-                    [`boat_${this.level}_left`]: {
+                    [`boat_2_left`]: {//${this.level}_left`]: {
                         pos: {
                             x: willieCoords[0][0], 
                             y: willieCoords[0][1]
@@ -439,6 +484,19 @@ class WeedSmokeWillie extends Game {
         };
         
         this.base.addChildren(revenueText);
+
+        const fishImage = this.fish[fish.node.id].image;
+        
+        const currentAssetKey = Object.keys(fishImage.node.asset)[0];
+
+        const xVel = currentAssetKey.indexOf('left') >= 0 ? -0.2 * this.random(1, 3) : 0.2 * this.random(1, 3);
+        const newPath = Physics.getPath(fish.node.coordinates2d[0][0], fish.node.coordinates2d[0][1], xVel, -.42, 100, 100);
+        this.fish[fish.node.id].pathIndex = 0;
+        this.fish[fish.node.id].path = newPath;
+        const newAssetKey = currentAssetKey + '_dead';
+        fishImage.node.asset = {
+            [newAssetKey]: Object.assign({}, fishImage.node.asset[currentAssetKey])
+        };
     }
 
     kill() {
@@ -448,7 +506,7 @@ class WeedSmokeWillie extends Game {
                 y: 45,
                 text: `Weedsmoke Willie has perished`,
                 align: 'center',
-                size: 5,
+                size: 4.5,
                 font: 'heavy-amateur',
                 color: COLORS.BLACK
             }
@@ -463,7 +521,17 @@ class WeedSmokeWillie extends Game {
         if (this.dead) {
             return;
         }
+
         const now = Date.now();
+
+        if (!this.lastBackgroundChange || this.lastBackgroundChange + 500 < now) {
+            const currentAssetKey = Object.keys(this.baseImage.node.asset)[0];
+            const newKey = currentAssetKey.endsWith('1') ? 'background_2' : 'background_1';
+            this.baseImage.node.asset = {
+                [newKey]: Object.assign({}, this.baseImage.node.asset[currentAssetKey])
+            };
+            this.lastBackgroundChange = now;
+        }
 
         if (this.shouldMoveLeft || this.keysDown['ArrowLeft'] || this.keysDown['a']) {
             this.moveNode(this.willie, 'left');
@@ -488,7 +556,7 @@ class WeedSmokeWillie extends Game {
             const key = loadKeys[i];
             const cur = this.loads[key];
             
-            const fishCollisions = GeometryUtils.checkCollisions(this.fishLayer, cur.node, (node) => node.node.id !== this.fishLayer.node.id && node.node.text == null);
+            const fishCollisions = GeometryUtils.checkCollisions(this.fishLayer, cur.node, (node) => !!this.fish[node.node.id] && this.fish[node.node.id].hittable);//node.node.id !== this.fishLayer.node.id && node.node.text == null);
             
             const collided = fishCollisions.length > 0;
 
@@ -515,8 +583,7 @@ class WeedSmokeWillie extends Game {
 
                 for (let i = 0; i < fishCollisions.length; i++) {
                     const collidingFish = fishCollisions[i];
-                    delete this.fish[collidingFish.node.id];
-                    this.fishLayer.removeChild(collidingFish.node.id);
+                    this.fish[collidingFish.node.id].hittable = false;
                 }
 
             } else {
@@ -701,7 +768,8 @@ class WeedSmokeWillie extends Game {
             path: fishPath,
             pathIndex: 0,
             image: fishImage,
-            fishType
+            fishType,
+            hittable: true
         };
 
         fish.addChild(fishImage);
@@ -771,7 +839,6 @@ class WeedSmokeWillie extends Game {
             const pressedButtons = Object.keys(gamepadInput.input.buttons).filter(b => gamepadInput.input.buttons[b].pressed);
             pressedButtons.forEach(b => {
                 if (UNALIVE_SEQUENCE[this.unaliveIndex] !== b) {
-                    console.log('need to reset cheat code');
                     this.unaliveIndex = 0;
                 }
             })
