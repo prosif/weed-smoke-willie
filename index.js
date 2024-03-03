@@ -152,6 +152,8 @@ class WeedSmokeWillie extends Game {
     constructor() {
         super();
 
+        this.players = {};
+
         this.base = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
@@ -210,6 +212,34 @@ class WeedSmokeWillie extends Game {
             coordinates2d: ShapeUtils.rectangle(42.5, 0, 45, 45)
         });
 
+        this.inputLayer = new GameNode.Shape({
+            shapeType: Shapes.POLYGON,
+            coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
+            onClick: (playerId, x, y) => {
+                if (this.players[playerId]) {
+                    if (x <= 33) {
+                        Object.keys(this.keysDown).forEach(k => {
+                            this.keysDown[k] = false;
+                        });
+
+                        this.keysDown['a'] = true;
+                    } else if (x <= 66) {
+                        Object.keys(this.keysDown).forEach(k => {
+                            this.keysDown[k] = false;
+                        });
+
+                        this.keysDown[' '] = true; 
+                    } else {
+                        Object.keys(this.keysDown).forEach(k => {
+                            this.keysDown[k] = false;
+                        });
+
+                        this.keysDown['d'] = true;
+                    }
+                }
+            }
+        });
+
         this.level = 1;
 
         this.cash = 100;
@@ -228,7 +258,7 @@ class WeedSmokeWillie extends Game {
         this.expiringNodes = {};
 
         this.willieLayer.addChild(this.willie);
-        this.base.addChildren(this.fishLayer, this.willieLayer, this.scoreLayer);
+        this.base.addChildren(this.fishLayer, this.willieLayer, this.scoreLayer, this.inputLayer);
 
         this.unaliveIndex = 0;
 
@@ -878,11 +908,23 @@ class WeedSmokeWillie extends Game {
             this.keysDown['d'] = false;
         }
 
+    }
 
+    handleNewPlayer({ playerId }) {
+        const isPlayer = Object.keys(this.players).filter(k => this.players[k].isPlayer).length === 0;
+        this.players[playerId] = {
+            isPlayer
+        };
     }
 
     handleKeyDown(player, key) {
         this.keysDown[key] = true;
+    }
+
+    handleMouseUp() {
+        Object.keys(this.keysDown).forEach(k => {
+            this.keysDown[k] = false;
+        });
     }
 
     getLayers() {
