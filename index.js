@@ -78,7 +78,7 @@ class WeedSmokeWillie extends Game {
                     type: 'image'
                 }),
                 'song': new Asset({
-                    id: '7c1499f198919967ee81389f76d03461',
+                    id: 'f1b220587346862960f9535898f2a36d',
                     type: 'audio'
                 }),
                 'load_1': new Asset({
