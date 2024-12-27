@@ -40,7 +40,7 @@ class WeedSmokeWillie extends Game {
     static metadata() {
         return {
             aspectRatio: {x: 16, y: 9},
-            squishVersion: '113',
+            squishVersion: '120',
             author: 'Joseph Garcia',
             thumbnail: 'f70e1e9e2b5ab072764949a6390a8b96',
             tickRate: 60,
